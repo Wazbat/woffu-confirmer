@@ -34,10 +34,6 @@ async function run() {
                 fromDate: firstDay,
                 toDate: lastDay,
                 userId,
-                //onlyNotAccepted: false,
-                //pageIndex: 0,
-                //pageSize: 31,
-                //departmentId: '',
             }
         });
         const {Diaries: initialDays} = firstCalendar.data;
@@ -64,10 +60,6 @@ async function run() {
                 fromDate: firstDay,
                 toDate: lastDay,
                 userId,
-                //onlyNotAccepted: false,
-                //pageIndex: 0,
-                //pageSize: 31,
-                //departmentId: '',
             }
         });
         const {Diaries: finalDays} = finalCalendar.data;
@@ -89,4 +81,7 @@ async function run() {
     }
 
 }
-run();
+console.time('Done');
+run().then(() => {
+    console.timeEnd('Done');
+});
