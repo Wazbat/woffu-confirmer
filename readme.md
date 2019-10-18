@@ -1,5 +1,10 @@
 **Unnamed Woffu hour confirming tool**
 
+<p align="center">
+  <img width="600" src="animated.svg">
+</p>
+
+
 How to use:
 * Clone the repo
 * Rename `.envexample` to `.env`
