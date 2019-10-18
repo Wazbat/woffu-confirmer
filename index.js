@@ -48,7 +48,7 @@ async function run() {
         currentSpinner.succeed((`${chalk.blue(initialDays.length)} days this month. ${chalk.greenBright(initialConfirmed)} already confirmed - ${chalk.red(initialRemaining)} remaining`));
         currentSpinner =  ora(chalk.blueBright('Confirming days...')).start();
         // Returns an empty response
-        await axios.put(`https://app.woffu.com/api/users/${userId}/diaries/confirm?fromDate=${firstDay}&toDate=${lastDay}`,
+        await axios.put(`https://app.woffu.com/api/users/${userId}/diaries/confirm?fromDate=${firstDay}&toDate=${lastDay}T23:00:00`,
             { "UserId": userId },
         { headers });
         currentSpinner.succeed(chalk.greenBright('Days confirmed!'));
