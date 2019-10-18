@@ -23,7 +23,7 @@ async function run() {
         });
         const { UserId: userId, FullName: name, CompanyName: company, TrueCompanyId: companyID, Birthday: birthday} = userQuery.data;
         // Idk why I added this as it just makes the code a little bit more complex. But hey! Birthdays should be celebrated! The data is there
-        const birthdayString = moment().isSame(birthday, 'day') ? chalk.magenta('Happy birthday!') : '';
+        const birthdayString = moment().isSame(birthday, 'day') ? chalk.magenta('Happy birthday! 🎂 🎈 🎉') : '';
         currentSpinner.succeed(`Welcome ${chalk.blue(name)} - ${chalk.red(company)} ${birthdayString}`);
         currentSpinner =  ora(`Loading calendar...`).start();
         // This isn't really needed. I only get the calendar here because I want to count how many days are confirmed the second time I get the calendar
@@ -52,7 +52,8 @@ async function run() {
             { "UserId": userId },
         { headers });
         currentSpinner.succeed(chalk.greenBright('Days confirmed!'));
-        currentSpinner =  ora('Loading calendar').start();
+        currentSpinner =  ora('Loading calendar...').start();
+        // Get the calendar a second time to see how many days have been confirmed now
         let finalCalendar = await axios.get(`https://app.woffu.com/api/companies/${companyID}/diaries`, {
             headers,
             params: {
