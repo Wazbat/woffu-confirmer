@@ -3,8 +3,7 @@ const axios = require('axios');
 const chalk = require('chalk');
 const moment = require('moment');
 const ora = require('ora');
-const email = process.env.WOFUEMAIL;
-const password = process.env.WOFUPASSWORD;
+const { WOFUPASSWORD: password, WOFUEMAIL: email} = process.env;
 
 const firstDay = moment().startOf('month').format('YYYY-MM-DD');
 const lastDay = moment().endOf('month').format('YYYY-MM-DD');
