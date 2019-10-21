@@ -3,15 +3,43 @@ const axios = require('axios');
 const chalk = require('chalk');
 const moment = require('moment');
 const ora = require('ora');
-const { WOFUPASSWORD: password, WOFUEMAIL: email} = process.env;
+const prompts = require('prompts');
+const SimpleCrypto = require("simple-crypto-js").default;
+const fs = require('fs');
+const { machineIdSync } = require('node-machine-id');
+const crypto = new SimpleCrypto(machineIdSync());
+
+let { WOFUPASSWORD: password, WOFUEMAIL: email} = process.env;
 
 const firstDay = moment().startOf('month').format('YYYY-MM-DD');
 const lastDay = moment().endOf('month').format('YYYY-MM-DD');
 let currentSpinner;
 async function run() {
+    if (!email || !password) {
+        const response = await prompts([
+            {
+                type: 'text',
+                name: 'email',
+                message: 'What is your woffu email?',
+                validate: val =>
+                    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(val) ? true : 'Email Must be valid'
+            },
+            {
+                type: 'password',
+                name: 'password',
+                message: 'What is your woffu password',
+                validate: val => !val ? 'Password cannot be blank' : true
+            }
+
+        ]);
+        email = response.email;
+        const encryptedPassword = crypto.encrypt(response.password);
+        fs.writeFileSync('./.env', `WOFUEMAIL="${email}"\nWOFUPASSWORD="${encryptedPassword}"`);
+        password = encryptedPassword;
+    }
     try {
         currentSpinner = ora(`Logging in to woffu as ${chalk.cyan(email)}...`).start();
-        let loginRes = await axios.post('https://app.woffu.com/token', `grant_type=password&username=${email}&password=${password}`, {
+        let loginRes = await axios.post('https://app.woffu.com/token', `grant_type=password&username=${email}&password=${crypto.decrypt(password)}`, {
             withCredentials: true
         });
         currentSpinner.succeed(chalk.greenBright('Logged in to woffu!'));
@@ -72,16 +100,18 @@ async function run() {
                 finalRemaining++;
             }
         });
-        currentSpinner.succeed(`${chalk.greenBright(finalConfirmed)} final days confirmed in total, ${chalk.blueBright(finalConfirmed - initialConfirmed)} this session. ${chalk.red(finalRemaining)} days remaining this month`);
+        currentSpinner.succeed(`${chalk.greenBright(finalConfirmed)} final days confirmed in total, ${chalk.blueBright(finalConfirmed - initialConfirmed)} confirmed this session. ${chalk.red(finalRemaining)} days remaining this month`);
 
 
     } catch (error) {
         currentSpinner.fail(`Error ${error.response.status}: ${error.response.statusText}`);
         console.error(error.response.data);
+        console.info('To reset your password, delete the .env file and restart your terminal');
     }
 
 }
 console.time('Done');
 run().then(() => {
     console.timeEnd('Done');
+    process.exit();
 });
