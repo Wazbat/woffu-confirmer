@@ -8,12 +8,15 @@ const SimpleCrypto = require("simple-crypto-js").default;
 const fs = require('fs');
 const { machineIdSync } = require('node-machine-id');
 const crypto = new SimpleCrypto(machineIdSync());
+const growl = require('notify-send');
+const os = require('os');
 
-let { WOFUPASSWORD: password, WOFUEMAIL: email} = process.env;
+let { WOFUPASSWORD: password, WOFUEMAIL: email } = process.env;
 
 const firstDay = moment().startOf('month').format('YYYY-MM-DD');
 const lastDay = moment().endOf('month').format('YYYY-MM-DD');
 let currentSpinner;
+
 async function run() {
     if (!email || !password) {
         const response = await prompts([
@@ -43,17 +46,17 @@ async function run() {
             withCredentials: true
         });
         currentSpinner.succeed(chalk.greenBright('Logged in to woffu!'));
-        currentSpinner =  ora(`Loading profile...`).start();
+        currentSpinner = ora(`Loading profile...`).start();
         const token = loginRes.data.access_token;
-        const headers = { 'authorization' : `Bearer ${token}` };
+        const headers = { 'authorization': `Bearer ${token}` };
         let userQuery = await axios.get('https://app.woffu.com/api/users', {
             headers
         });
-        const { UserId: userId, FullName: name, CompanyName: company, TrueCompanyId: companyID, Birthday: birthday} = userQuery.data;
+        const { UserId: userId, FullName: name, CompanyName: company, TrueCompanyId: companyID, Birthday: birthday } = userQuery.data;
         // Idk why I added this as it just makes the code a little bit more complex. But hey! Birthdays should be celebrated! The data is there
         const birthdayString = moment().isSame(birthday, 'day') ? chalk.magenta('Happy birthday! 🎂 🎈 🎉') : '';
         currentSpinner.succeed(`Welcome ${chalk.blue(name)} - ${chalk.red(company)} ${birthdayString}`);
-        currentSpinner =  ora(`Loading calendar...`).start();
+        currentSpinner = ora(`Loading calendar...`).start();
         // This isn't really needed. I only get the calendar here because I want to count how many days are confirmed the second time I get the calendar
         let firstCalendar = await axios.get(`https://app.woffu.com/api/companies/${companyID}/diaries`, {
             headers,
@@ -63,7 +66,7 @@ async function run() {
                 userId,
             }
         });
-        const {Diaries: initialDays} = firstCalendar.data;
+        const { Diaries: initialDays } = firstCalendar.data;
         let initialConfirmed = 0;
         let initialRemaining = 0;
         initialDays.forEach(day => {
@@ -73,14 +76,15 @@ async function run() {
                 initialRemaining++;
             }
         });
+
         currentSpinner.succeed((`${chalk.blue(initialDays.length)} days this month. ${chalk.greenBright(initialConfirmed)} already confirmed - ${chalk.red(initialRemaining)} remaining`));
-        currentSpinner =  ora(chalk.blueBright('Confirming days...')).start();
+        currentSpinner = ora(chalk.blueBright('Confirming days...')).start();
         // Returns an empty response
         await axios.put(`https://app.woffu.com/api/users/${userId}/diaries/confirm?fromDate=${firstDay}&toDate=${lastDay}T23:00:00`,
             { "UserId": userId },
-        { headers });
+            { headers });
         currentSpinner.succeed(chalk.greenBright('Days confirmed!'));
-        currentSpinner =  ora('Loading calendar...').start();
+        currentSpinner = ora('Loading calendar...').start();
         // Get the calendar a second time to see how many days have been confirmed now
         let finalCalendar = await axios.get(`https://app.woffu.com/api/companies/${companyID}/diaries`, {
             headers,
@@ -90,7 +94,7 @@ async function run() {
                 userId,
             }
         });
-        const {Diaries: finalDays} = finalCalendar.data;
+        const { Diaries: finalDays } = finalCalendar.data;
         let finalConfirmed = 0;
         let finalRemaining = 0;
         finalDays.forEach(day => {
@@ -102,6 +106,12 @@ async function run() {
         });
         currentSpinner.succeed(`${chalk.greenBright(finalConfirmed)} final days confirmed in total, ${chalk.blueBright(finalConfirmed - initialConfirmed)} confirmed this session. ${chalk.red(finalRemaining)} days remaining this month`);
 
+        if (os.platform() === 'linux') {
+
+            const successMsg = `${initialDays.length} days this month. ${initialConfirmed} already confirmed - ${initialRemaining} remaining.\n${finalConfirmed} final days confirmed in total, ${finalConfirmed - initialConfirmed} confirmed this session. ${finalRemaining} days remaining this month.`;
+
+            growl.normal.notify('Woffu', successMsg);
+        }
 
     } catch (error) {
         currentSpinner.fail(`Error ${error.response.status}: ${error.response.statusText}`);
@@ -110,6 +120,7 @@ async function run() {
     }
 
 }
+
 console.time('Done');
 run().then(() => {
     console.timeEnd('Done');
