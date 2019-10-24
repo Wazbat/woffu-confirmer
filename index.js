@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: `${__dirname}/.env`});
 const axios = require('axios');
 const chalk = require('chalk');
 const moment = require('moment');
@@ -36,7 +36,7 @@ async function run() {
         ]);
         email = response.email;
         const encryptedPassword = crypto.encrypt(response.password);
-        fs.writeFileSync('./.env', `WOFUEMAIL="${email}"\nWOFUPASSWORD="${encryptedPassword}"`);
+        fs.writeFileSync(`${__dirname}/.env`, `WOFUEMAIL="${email}"\nWOFUPASSWORD="${encryptedPassword}"`);
         password = encryptedPassword;
     }
     try {
