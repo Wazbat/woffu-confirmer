@@ -8,8 +8,7 @@ const SimpleCrypto = require("simple-crypto-js").default;
 const fs = require('fs');
 const { machineIdSync } = require('node-machine-id');
 const crypto = new SimpleCrypto(machineIdSync());
-const growl = require('notify-send');
-const os = require('os');
+const notifier = require('node-notifier');
 
 let { WOFUPASSWORD: password, WOFUEMAIL: email } = process.env;
 
@@ -106,12 +105,9 @@ async function run() {
         });
         currentSpinner.succeed(`${chalk.greenBright(finalConfirmed)} final days confirmed in total, ${chalk.blueBright(finalConfirmed - initialConfirmed)} confirmed this session. ${chalk.red(finalRemaining)} days remaining this month`);
 
-        if (os.platform() === 'linux') {
+        const successMsg = `${finalConfirmed} total days confirmed in total, ${finalConfirmed - initialConfirmed} confirmed this session. ${finalRemaining} days remaining this month.`;
 
-            const successMsg = `${initialDays.length} days this month. ${initialConfirmed} already confirmed - ${initialRemaining} remaining.\n${finalConfirmed} final days confirmed in total, ${finalConfirmed - initialConfirmed} confirmed this session. ${finalRemaining} days remaining this month.`;
-
-            growl.normal.notify('Woffu', successMsg);
-        }
+        notifier.notify({ title: 'Woffu', message: successMsg});
 
     } catch (error) {
         currentSpinner.fail(`Error ${error.response.status}: ${error.response.statusText}`);
