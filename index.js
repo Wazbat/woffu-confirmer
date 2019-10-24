@@ -1,4 +1,5 @@
 require('dotenv').config({ path: `${__dirname}/.env`});
+const Git =  require('nodegit');
 const axios = require('axios');
 const chalk = require('chalk');
 const moment = require('moment');
@@ -15,6 +16,12 @@ let { WOFUPASSWORD: password, WOFUEMAIL: email } = process.env;
 const firstDay = moment().startOf('month').format('YYYY-MM-DD');
 const lastDay = moment().endOf('month').format('YYYY-MM-DD');
 let currentSpinner;
+
+console.time('Done');
+run().then(() => {
+    console.timeEnd('Done');
+    process.exit();
+});
 
 async function run() {
     if (!email || !password) {
@@ -40,6 +47,18 @@ async function run() {
         password = encryptedPassword;
     }
     try {
+        currentSpinner = ora(chalk.green('Checking for updates...')).start();
+        try {
+            const updated = await upToDate();
+            if (updated) {
+                currentSpinner.succeed('Up to date!');
+            } else {
+                currentSpinner.warn(`${chalk.red('Update available!')} https://github.com/Wazbat/woffu-confirmer`)
+            }
+        } catch (e) {
+            console.warn('Error checking for updates')
+        }
+
         currentSpinner = ora(`Logging in to woffu as ${chalk.cyan(email)}...`).start();
         let loginRes = await axios.post('https://app.woffu.com/token', `grant_type=password&username=${email}&password=${crypto.decrypt(password)}`, {
             withCredentials: true
@@ -117,8 +136,27 @@ async function run() {
 
 }
 
-console.time('Done');
-run().then(() => {
-    console.timeEnd('Done');
-    process.exit();
-});
+
+async function upToDate() {
+    let response;
+    try {
+        response = await axios.get('https://api.github.com/repos/wazbat/woffu-confirmer/commits/master', {
+            headers: {
+                Accept: 'application/vnd.github.v3+json'
+            }
+        });
+    } catch (e) {
+        throw e;
+    }
+    if (!response.data.sha) throw new Error('Invalid data received from github');
+    let remoteSha;
+    try {
+        const repo = await Git.Repository.open(__dirname);
+        const masterCommit = await repo.getReferenceCommit('master');
+        remoteSha = masterCommit.sha();
+    } catch (e) {
+        throw new Error('Error getting local git repo');
+    }
+    return response.data.sha === remoteSha;
+
+}
