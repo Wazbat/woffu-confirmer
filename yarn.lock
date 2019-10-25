@@ -22,18 +22,6 @@ axios@^0.19.0:
     follow-redirects "1.5.10"
     is-buffer "^2.0.2"
 
-blob-to-hash@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/blob-to-hash/-/blob-to-hash-0.0.1.tgz#121d8738d40a77325ff47d22536702bc8559884d"
-  integrity sha512-V9N46n90/oa7U+GSYo1lZfPmn9DDVUP//eqy3jErzaTglI2o6SNsUtcNqfH79tBbUaVnx6XNJRGG8LTyb/hxCQ==
-
-blob-to-sha1@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/blob-to-sha1/-/blob-to-sha1-0.0.1.tgz#e3d8aa76fe9fd8b90f82f0e179215510a1840c9b"
-  integrity sha512-vYlTFopv7j+FT5lVPFkw1blPGHbF7WATMrtYDS7Jd4Mvaur5HXuUdGXzByZTIaWbMynthg2QQseLq4vzE6K8MQ==
-  dependencies:
-    blob-to-hash "^0.0.1"
-
 chalk@^2.4.2:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
@@ -77,18 +65,6 @@ crypto-js@^3.1.9-1:
   resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-3.1.9-1.tgz#fda19e761fc077e01ffbfdc6e9fdfc59e8806cd8"
   integrity sha1-/aGedh/Ad+Af+/3G6f38WeiAbNg=
 
-data-to-hash@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/data-to-hash/-/data-to-hash-0.0.1.tgz#aac80efbe845ed0f6f621fd5c904ebcf11da6fc9"
-  integrity sha512-SkiAFcTWEVMXdYDtn+b84uTftA+n2VEiTiBlAh8DYR4VK8NMEPmSwo3aGmB5QV64SrfMgq6DhQhu2gXYIe94Sw==
-
-data-to-sha1@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/data-to-sha1/-/data-to-sha1-0.0.1.tgz#0601f96c172a7cdd443bec207f1ddb464fec4484"
-  integrity sha512-W5BcyFM0k34EMTj4zhOCp7rOZn3Jfh05a6TxTzd9wCZI0IjaCcJ8/PQAazqjE7N25NnwrpqLsKl8EKxi6oOhZg==
-  dependencies:
-    data-to-hash "^0.0.1"
-
 debug@=3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
@@ -112,15 +88,6 @@ escape-string-regexp@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
-
-file-to-sha1@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/file-to-sha1/-/file-to-sha1-0.0.1.tgz#6046ef96f7b77fedbc0300a03cbd1504df7a9b2c"
-  integrity sha512-GKBQBVDNc0/bHUzbHXpxuYOcZe6SASbgAvXJzreOrYln51Ni20wHeN+slBMWPFmvtXQxYsJAivPOj1Hy5iXdBQ==
-  dependencies:
-    blob-to-sha1 "^0.0.1"
-    data-to-sha1 "^0.0.1"
-    path-to-sha1 "^0.0.1"
 
 follow-redirects@1.5.10:
   version "1.5.10"
@@ -221,20 +188,6 @@ ora@^4.0.2:
     log-symbols "^3.0.0"
     strip-ansi "^5.2.0"
     wcwidth "^1.0.1"
-
-path-to-hash@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/path-to-hash/-/path-to-hash-0.0.1.tgz#f577700ddbcc1e85192b1e945917b5eec50d7f02"
-  integrity sha512-0a2+G6iW9I2nIQzSIx2Gz0JSdcfmUWwbHvwhD8jvtoMVVN28+WwsHeawP8WkHfDSpT1beYbDrmPV0Cyquqx+0A==
-  dependencies:
-    data-to-hash "^0.0.1"
-
-path-to-sha1@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/path-to-sha1/-/path-to-sha1-0.0.1.tgz#bf5d4f65239f0e087dd31711460aee315e28ebae"
-  integrity sha512-dsyhycvDTTLdCVme4Bf9oidGojzqpIlBMKVfHlICoXyUM2z3KWcR1KiQ3Isw1oR6cKRJTczLkej8s86ntn3S7A==
-  dependencies:
-    path-to-hash "^0.0.1"
 
 prompts@^2.2.1:
   version "2.2.1"

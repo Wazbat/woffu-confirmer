@@ -6,7 +6,6 @@ const ora = require('ora');
 const prompts = require('prompts');
 const SimpleCrypto = require("simple-crypto-js").default;
 const fs = require('fs');
-const { pathToSHA1 } = require('file-to-sha1');
 const { machineIdSync } = require('node-machine-id');
 const crypto = new SimpleCrypto(machineIdSync());
 const notifier = require('node-notifier');
@@ -148,12 +147,16 @@ async function upToDate() {
     } catch (e) {
         throw e;
     }
+
+
     if (!response.data.sha) throw new Error('Invalid data received from github');
-    let localSha;
+    let fileSize;
     try {
-        localSha = await pathToSHA1(__filename);
+        // It would be much better to compare the sha of the files. Or maybe there's a better way to do it. I don't know. But this should do for now
+        fileSize = fs.statSync(__filename).size;
+
     } catch (e) {
-        throw new Error('Error calculating local sha');
+        throw new Error('Error getting local filesize');
     }
-    return response.data.sha === localSha;
+    return response.data.size === fileSize;
 }
