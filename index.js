@@ -15,7 +15,7 @@ let { WOFUPASSWORD: password, WOFUEMAIL: email } = process.env;
 
 const firstDay = moment().startOf('month').format('YYYY-MM-DD');
 const lastDay = moment().endOf('month').format('YYYY-MM-DD');
-let currentSpinner;
+let spinner = ora();
 
 console.time('Done');
 run().then(() => {
@@ -47,24 +47,24 @@ async function run() {
         password = encryptedPassword;
     }
     try {
-        currentSpinner = ora(chalk.green('Checking for updates...')).start();
+        spinner.start(chalk.green('Checking for updates...'));
         try {
             const updated = await upToDate();
             if (updated) {
-                currentSpinner.succeed('Up to date!');
+                spinner.succeed('Up to date!');
             } else {
-                currentSpinner.warn(`${chalk.red('Update available!')} https://github.com/Wazbat/woffu-confirmer`)
+                spinner.warn(`${chalk.red('Update available!')} https://github.com/Wazbat/woffu-confirmer`)
             }
         } catch (e) {
             console.warn('Error checking for updates')
         }
 
-        currentSpinner = ora(`Logging in to woffu as ${chalk.cyan(email)}...`).start();
+        spinner.start(`Logging in to woffu as ${chalk.cyan(email)}...`);
         let loginRes = await axios.post('https://app.woffu.com/token', `grant_type=password&username=${email}&password=${crypto.decrypt(password)}`, {
             withCredentials: true
         });
-        currentSpinner.succeed(chalk.greenBright('Logged in to woffu!'));
-        currentSpinner = ora(`Loading profile...`).start();
+        spinner.succeed(chalk.greenBright('Logged in to woffu!'));
+        spinner.start(`Loading profile...`);
         const token = loginRes.data.access_token;
         const headers = { 'authorization': `Bearer ${token}` };
         let userQuery = await axios.get('https://app.woffu.com/api/users', {
@@ -73,8 +73,8 @@ async function run() {
         const { UserId: userId, FullName: name, CompanyName: company, TrueCompanyId: companyID, Birthday: birthday } = userQuery.data;
         // Idk why I added this as it just makes the code a little bit more complex. But hey! Birthdays should be celebrated! The data is there
         const birthdayString = moment().isSame(birthday, 'day') ? chalk.magenta('Happy birthday! 🎂 🎈 🎉') : '';
-        currentSpinner.succeed(`Welcome ${chalk.blue(name)} - ${chalk.red(company)} ${birthdayString}`);
-        currentSpinner = ora(`Loading calendar...`).start();
+        spinner.succeed(`Welcome ${chalk.blue(name)} - ${chalk.red(company)} ${birthdayString}`);
+        spinner.start(`Loading calendar...`);
         // This isn't really needed. I only get the calendar here because I want to count how many days are confirmed the second time I get the calendar
         let firstCalendar = await axios.get(`https://app.woffu.com/api/companies/${companyID}/diaries`, {
             headers,
@@ -95,14 +95,14 @@ async function run() {
             }
         });
 
-        currentSpinner.succeed((`${chalk.blue(initialDays.length)} days this month. ${chalk.greenBright(initialConfirmed)} already confirmed - ${chalk.red(initialRemaining)} remaining`));
-        currentSpinner = ora(chalk.blueBright('Confirming days...')).start();
+        spinner.succeed((`${chalk.blue(initialDays.length)} days this month. ${chalk.greenBright(initialConfirmed)} already confirmed - ${chalk.red(initialRemaining)} remaining`));
+        spinner.start(chalk.blueBright('Confirming days...'));
         // Returns an empty response
         await axios.put(`https://app.woffu.com/api/users/${userId}/diaries/confirm?fromDate=${firstDay}&toDate=${lastDay}T23:00:00`,
             { "UserId": userId },
             { headers });
-        currentSpinner.succeed(chalk.greenBright('Days confirmed!'));
-        currentSpinner = ora('Loading calendar...').start();
+        spinner.succeed(chalk.greenBright('Days confirmed!'));
+        spinner.start('Loading calendar...');
         // Get the calendar a second time to see how many days have been confirmed now
         let finalCalendar = await axios.get(`https://app.woffu.com/api/companies/${companyID}/diaries`, {
             headers,
@@ -122,14 +122,14 @@ async function run() {
                 finalRemaining++;
             }
         });
-        currentSpinner.succeed(`${chalk.greenBright(finalConfirmed)} final days confirmed in total, ${chalk.blueBright(finalConfirmed - initialConfirmed)} confirmed this session. ${chalk.red(finalRemaining)} days remaining this month`);
+        spinner.succeed(`${chalk.greenBright(finalConfirmed)} final days confirmed in total, ${chalk.blueBright(finalConfirmed - initialConfirmed)} confirmed this session. ${chalk.red(finalRemaining)} days remaining this month`);
 
         const successMsg = `${finalConfirmed} total days confirmed in total, ${finalConfirmed - initialConfirmed} confirmed this session. ${finalRemaining} days remaining this month.`;
 
         notifier.notify({ title: 'Woffu', message: successMsg});
 
     } catch (error) {
-        currentSpinner.fail(`Error ${error.response.status}: ${error.response.statusText}`);
+        spinner.fail(`Error ${error.response.status}: ${error.response.statusText}`);
         console.error(error.response.data);
         console.info('To reset your password, delete the .env file and restart your terminal');
     }
