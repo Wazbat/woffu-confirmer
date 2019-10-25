@@ -1,5 +1,4 @@
 require('dotenv').config({ path: `${__dirname}/.env`});
-const Git =  require('nodegit');
 const axios = require('axios');
 const chalk = require('chalk');
 const moment = require('moment');
@@ -7,6 +6,7 @@ const ora = require('ora');
 const prompts = require('prompts');
 const SimpleCrypto = require("simple-crypto-js").default;
 const fs = require('fs');
+const { pathToSHA1 } = require('file-to-sha1');
 const { machineIdSync } = require('node-machine-id');
 const crypto = new SimpleCrypto(machineIdSync());
 const notifier = require('node-notifier');
@@ -140,7 +140,7 @@ async function run() {
 async function upToDate() {
     let response;
     try {
-        response = await axios.get('https://api.github.com/repos/wazbat/woffu-confirmer/commits/master', {
+        response = await axios.get('https://api.github.com/repos/wazbat/woffu-confirmer/contents/index.js', {
             headers: {
                 Accept: 'application/vnd.github.v3+json'
             }
@@ -149,14 +149,11 @@ async function upToDate() {
         throw e;
     }
     if (!response.data.sha) throw new Error('Invalid data received from github');
-    let remoteSha;
+    let localSha;
     try {
-        const repo = await Git.Repository.open(__dirname);
-        const masterCommit = await repo.getReferenceCommit('master');
-        remoteSha = masterCommit.sha();
+        localSha = await pathToSHA1(__filename);
     } catch (e) {
-        throw new Error('Error getting local git repo');
+        throw new Error('Error calculating local sha');
     }
-    return response.data.sha === remoteSha;
-
+    return response.data.sha === localSha;
 }
