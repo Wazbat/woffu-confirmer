@@ -2,7 +2,6 @@
   "name": "@wazbat/woffu-confirmer",
   "scripts": {
     "start": "node index.js",
-    "test": "node test.js"
   },
   "version": "2.0.5",
   "main": "index.js",
