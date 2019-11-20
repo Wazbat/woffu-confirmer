@@ -10,6 +10,7 @@ jobs:
   update-version:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
       - name: Patch version
         run: npm version patch
       - name: Commit changes
