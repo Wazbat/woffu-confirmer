@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 require('dotenv').config({ path: `${__dirname}/.env`});
 const axios = require('axios');
 const chalk = require('chalk');
@@ -9,6 +10,30 @@ const fs = require('fs');
 const { machineIdSync } = require('node-machine-id');
 const crypto = new SimpleCrypto(machineIdSync());
 const notifier = require('node-notifier');
+const argv = require('yargs')
+    .usage('Usage: $0 [options]')
+    .example('$0', 'Run the tool with the previously saved password, if it exists')
+    .example('$0 -e john@corp.com -p hunter2', 'Run the command tool with a specific email and password combination')
+    .example('$0 --reset', 'Reset saved and password')
+    .alias('r', 'reset')
+    .nargs('r', 0)
+    .describe('r', 'Reset saved username and password')
+    .boolean('r')
+    .nargs('email', 1)
+    .string('email')
+    .describe('email', 'Specify email to use')
+    .nargs('password', 1)
+    .string('password')
+
+    .describe('password', 'Specify password to use')
+    //.demandOption(['f'])
+    .help('h')
+    .alias('h', 'help')
+    .implies('email', 'password')
+    .conflicts('r', ['email', 'password'])
+    .strict(true)
+    .epilog('Made with ❤️')
+    .argv;
 
 let { WOFUPASSWORD: password, WOFUEMAIL: email } = process.env;
 
@@ -23,43 +48,35 @@ run().then(() => {
 });
 
 async function run() {
-    if (!email || !password) {
+    if (!argv.email && (!email || !password || argv.reset)) {
         const response = await prompts([
-            {
-                type: 'text',
-                name: 'email',
-                message: 'What is your woffu email?',
-                validate: val =>
-                    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(val) ? true : 'Email Must be valid'
-            },
-            {
-                type: 'password',
-                name: 'password',
-                message: 'What is your woffu password',
-                validate: val => !val ? 'Password cannot be blank' : true
-            }
+                {
+                    type: 'text',
+                    name: 'email',
+                    message: 'What is your woffu email?',
+                    validate: val =>
+                        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(val) ? true : 'Email Must be valid'
+                },
+                {
+                    type: 'password',
+                    name: 'password',
+                    message: 'What is your woffu password',
+                    validate: val => !val ? 'Password cannot be blank' : true
+                }
 
-        ]);
+            ]);
+        if (!response.email || !response.password) {
+            console.log(`✖ Canceled`);
+            return;
+        }
         email = response.email;
         const encryptedPassword = crypto.encrypt(response.password);
         fs.writeFileSync(`${__dirname}/.env`, `WOFUEMAIL="${email}"\nWOFUPASSWORD="${encryptedPassword}"`);
         password = encryptedPassword;
     }
     try {
-        spinner.start(chalk.green('Checking for updates...'));
-        try {
-            const updated = await upToDate();
-            if (updated) {
-                spinner.succeed('Up to date!');
-            } else {
-                spinner.warn(`${chalk.red('Update available!')} https://github.com/Wazbat/woffu-confirmer`)
-            }
-        } catch (e) {
-            console.warn('Error checking for updates')
-        }
-
         spinner.start(`Logging in to woffu as ${chalk.cyan(email)}...`);
-        let loginRes = await axios.post('https://app.woffu.com/token', `grant_type=password&username=${email}&password=${crypto.decrypt(password)}`, {
+        let loginRes = await axios.post('https://app.woffu.com/token', `grant_type=password&username=${argv.email|| email}&password=${argv.password || crypto.decrypt(password)}`, {
             withCredentials: true
         });
         spinner.succeed(chalk.greenBright('Logged in to woffu!'));
@@ -128,35 +145,17 @@ async function run() {
         notifier.notify({ title: 'Woffu', message: successMsg});
 
     } catch (error) {
-        spinner.fail(`Error ${error.response.status}: ${error.response.statusText}`);
-        console.error(error.response.data);
-        console.info('To reset your password, delete the .env file and restart your terminal');
-    }
-
-}
-
-
-async function upToDate() {
-    let response;
-    try {
-        response = await axios.get('https://api.github.com/repos/wazbat/woffu-confirmer/contents/index.js', {
-            headers: {
-                Accept: 'application/vnd.github.v3+json'
+        if (error.response) {
+            if (error.response.data.error_description) {
+                spinner.fail(`Error ${error.response.status}: ${error.response.statusText}`);
+            } else {
+                spinner.fail(`Error ${error.response.status}: ${error.response.statusText}`);
+                console.error(error.response.data);
             }
-        });
-    } catch (e) {
-        throw e;
+        } else {
+            console.error(error)
+        }
+
     }
 
-
-    if (!response.data.sha) throw new Error('Invalid data received from github');
-    let fileSize;
-    try {
-        // It would be much better to compare the sha of the files. Or maybe there's a better way to do it. I don't know. But this should do for now
-        fileSize = fs.statSync(__filename).size;
-
-    } catch (e) {
-        throw new Error('Error getting local filesize');
-    }
-    return response.data.size === fileSize;
 }
