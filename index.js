@@ -13,7 +13,7 @@ const notifier = require('node-notifier');
 const argv = require('yargs')
     .usage('Usage: $0 [options]')
     .example('$0', 'Run the tool with the previously saved password, if it exists')
-    .example('$0 -e john@corp.com -p hunter2', 'Run the command tool with a specific email and password combination')
+    .example('$0 --email john@corp.com --password hunter2', 'Run the command tool with a specific email and password combination')
     .example('$0 --reset', 'Reset saved and password')
     .alias('r', 'reset')
     .nargs('r', 0)
