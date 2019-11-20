@@ -20,7 +20,6 @@ jobs:
       - run: yarn publish --non-interactive
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      - name: Push version changes
-          uses: ad-m/github-push-action@master
+      - uses: ad-m/github-push-action@master
           with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
