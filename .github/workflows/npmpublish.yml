@@ -12,13 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Patch version
-        run: npm version patch
-      - name: Commit changes
-        working-directory: .
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions"
-          git commit -m "Add changes" -a
+          npm version patch
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
