@@ -13,6 +13,7 @@ jobs:
       - name: Patch version
         run: npm version patch
       - name: Commit changes
+        working-directory: .
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions"
@@ -22,6 +23,7 @@ jobs:
         with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
   build:
+    needs: update-version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
