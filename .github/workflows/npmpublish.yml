@@ -15,7 +15,9 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions"
-          npm version patch
+          npm --no-git-tag-version version patch
+          git add .
+          git commit -m "Updated version"
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
