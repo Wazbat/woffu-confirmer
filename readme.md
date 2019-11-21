@@ -6,7 +6,7 @@
 
 
 How to use:
-* Install globally with `npm -g @wazbat/woffu-confirmer`
+* Install globally with `npm install -g @wazbat/woffu-confirmer` or `yarn global add @wazbat/woffu-confirmer`
 * Run with `woffu-confirmer`
 * Enjoy!
 
