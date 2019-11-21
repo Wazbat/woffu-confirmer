@@ -18,9 +18,9 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@wazbat'
       - name: Configure git
-          run: |
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
       - run: yarn publish --non-interactive
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
