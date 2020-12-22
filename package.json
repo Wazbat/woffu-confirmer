@@ -22,7 +22,7 @@
     "dotenv": "^8.2.0",
     "moment": "^2.24.0",
     "node-machine-id": "^1.1.12",
-    "node-notifier": "^6.0.0",
+    "node-notifier": "^8.0.1",
     "ora": "^4.0.2",
     "prompts": "^2.2.1",
     "simple-crypto-js": "^2.2.0",
