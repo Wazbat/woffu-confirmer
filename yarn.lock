@@ -854,10 +854,10 @@ cross-spawn@^6.0.0:
     shebang-command "^1.2.0"
     which "^1.2.9"
 
-crypto-js@^3.1.9-1:
-  version "3.1.9-1"
-  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-3.1.9-1.tgz#fda19e761fc077e01ffbfdc6e9fdfc59e8806cd8"
-  integrity sha1-/aGedh/Ad+Af+/3G6f38WeiAbNg=
+crypto-js@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-3.3.0.tgz#846dd1cce2f68aacfa156c8578f926a609b7976b"
+  integrity sha512-DIT51nX0dCfKltpRiXV+/TVZq+Qq2NgF4644+K7Ttnla7zEzqc+kjJyiB96BHNyUTBxyjzRcZYpUdZa+QAqi6Q==
 
 cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   version "0.3.8"
@@ -3166,12 +3166,12 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
   integrity sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0=
 
-simple-crypto-js@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/simple-crypto-js/-/simple-crypto-js-2.2.0.tgz#ef6413b08a889509cef4ec74bd7ecb413aa9d0a6"
-  integrity sha512-noEQl72TKmQCc46mKO1dg5jB0/M5caFckDreku68Wv6MXb/aue0I/P7RfNLWYqN/aHQjTolZB1w5AM84dIlkMw==
+simple-crypto-js@^2.3.0:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/simple-crypto-js/-/simple-crypto-js-2.5.1.tgz#ce9ce5c714ca2b8bbbab28a5d83f69edca437cb8"
+  integrity sha512-yncXrcUbaYNxiKkeIAFrnZX3bbCR+tm0f1/bdppEfYxUYEog3UhlTt8x8Lsdf1xh9GqrT5yYfx/mUcbcykeG1A==
   dependencies:
-    crypto-js "^3.1.9-1"
+    crypto-js "^3.3.0"
 
 sisteransi@^1.0.3:
   version "1.0.3"
